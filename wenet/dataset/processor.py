@@ -100,7 +100,7 @@ def tar_file_and_group(data):
                     valid = False
                     logging.warning('error to parse {}'.format(name))
             prev_prefix = prefix
-        if prev_prefix is not None:
+        if prev_prefix is not None and valid:
             example['key'] = prev_prefix
             yield example
         stream.close()
@@ -422,6 +422,9 @@ def spec_aug(data, num_t_mask=2, num_f_mask=2, max_t=50, max_f=10, max_w=80):
     """
     for sample in data:
         assert 'feat' in sample
+        if random.random() < 0.5:
+            yield sample
+            continue
         x = sample['feat']
         assert isinstance(x, torch.Tensor)
         y = x.clone().detach()
@@ -457,6 +460,9 @@ def spec_sub(data, max_t=20, num_t_sub=3):
     """
     for sample in data:
         assert 'feat' in sample
+        if random.random() < 0.5:
+            yield sample
+            continue
         x = sample['feat']
         assert isinstance(x, torch.Tensor)
         y = x.clone().detach()

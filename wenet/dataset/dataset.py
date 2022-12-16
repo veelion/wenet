@@ -122,7 +122,8 @@ def Dataset(data_type,
             conf,
             bpe_model=None,
             non_lang_syms=None,
-            partition=True):
+            partition=True,
+            only_extract=False):
     """ Construct dataset from arguments
 
         We have two shuffle stage in the Dataset. The first is global
@@ -187,7 +188,8 @@ def Dataset(data_type,
         sort_conf = conf.get('sort_conf', {})
         dataset = Processor(dataset, processor.sort, **sort_conf)
 
-    batch_conf = conf.get('batch_conf', {})
-    dataset = Processor(dataset, processor.batch, **batch_conf)
-    dataset = Processor(dataset, processor.padding)
+    if not only_extract:
+        batch_conf = conf.get('batch_conf', {})
+        dataset = Processor(dataset, processor.batch, **batch_conf)
+        dataset = Processor(dataset, processor.padding)
     return dataset

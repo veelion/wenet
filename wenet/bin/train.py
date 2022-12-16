@@ -40,7 +40,7 @@ def get_args():
     parser.add_argument('--config', required=True, help='config file')
     parser.add_argument('--data_type',
                         default='raw',
-                        choices=['raw', 'shard'],
+                        choices=['raw', 'shard', 'h5'],
                         help='train and cv data type')
     parser.add_argument('--train_data', required=True, help='train data file')
     parser.add_argument('--cv_data', required=True, help='cv data file')
@@ -153,15 +153,20 @@ def main():
     cv_conf['shuffle'] = False
     non_lang_syms = read_non_lang_symbols(args.non_lang_syms)
 
-    train_dataset = Dataset(args.data_type, args.train_data, symbol_table,
-                            train_conf, args.bpe_model, non_lang_syms, True)
-    cv_dataset = Dataset(args.data_type,
-                         args.cv_data,
-                         symbol_table,
-                         cv_conf,
-                         args.bpe_model,
-                         non_lang_syms,
-                         partition=False)
+    if args.data_type == 'h5':
+        from wenet.dataset.dataset_hdf5 import DatasetHdf5
+        train_dataset = DatasetHdf5(args.train_data, train_conf, True)
+        cv_dataset = DatasetHdf5(args.cv_data, cv_conf, False)
+    else:
+        train_dataset = Dataset(args.data_type, args.train_data, symbol_table,
+                                train_conf, args.bpe_model, non_lang_syms, True)
+        cv_dataset = Dataset(args.data_type,
+                             args.cv_data,
+                             symbol_table,
+                             cv_conf,
+                             args.bpe_model,
+                             non_lang_syms,
+                             partition=False)
 
     train_data_loader = DataLoader(train_dataset,
                                    batch_size=None,
